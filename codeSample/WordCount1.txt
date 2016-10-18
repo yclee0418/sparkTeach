@@ -1,0 +1,35 @@
+package wordCount
+
+//spark lib
+import org.apache.spark.SparkConf
+import org.apache.spark.SparkContext
+import org.apache.spark.rdd._
+
+//log
+import org.apache.log4j.Logger
+import org.apache.log4j.Level
+
+object WordCount1 {
+  def main(args: Array[String]): Unit = {
+    //設定Log顯示層級，減少Console資訊
+    Logger.getLogger("org").setLevel(Level.ERROR) //mark for MLlib INFO msg
+    Logger.getLogger("com").setLevel(Level.ERROR)
+    Logger.getLogger("io").setLevel(Level.ERROR)
+    System.setProperty("spark.ui.showConsoleProgress", "false")
+    
+    val sc = new SparkContext(new SparkConf().setAppName("WordCount1").setMaster("local[4]"))
+    val rawRdd = sc.textFile("data/gettysburg.txt").flatMap { _.toLowerCase().split(" ") }
+    val txtRdd = rawRdd.filter { !_.trim().equals("") }
+    val countRdd = txtRdd.map { (_, 1) }
+    val resultRdd = countRdd.reduceByKey(_ + _)
+    val sortResRdd = resultRdd.sortBy(_._2, false)
+    resultRdd.sortBy(_._2, false).collect.foreach(println)
+    sortResRdd.saveAsTextFile("data/wc_output")
+    
+//    txtRdd.collect().foreach { println }
+//    val map = txtRdd.zipWithIndex()
+//    map.collect().foreach { println }
+  }
+  
+  
+}

@@ -1,0 +1,30 @@
+package bikeSharing
+
+//spark lib
+import org.apache.spark.SparkConf
+import org.apache.spark.SparkContext
+import org.apache.spark.rdd._
+//log
+import org.apache.log4j.Logger
+import org.apache.log4j.Level
+import scala.util.Try
+
+object BikeCountSort {
+  def main(args: Array[String]): Unit = {
+    //建立sparkcontext，並設定在local起4個Worker Thread執行
+    val sc = new SparkContext(new SparkConf().setAppName("BikeCountSort").setMaster("local[4]"))
+    //讀取day.csv的(dteday,cnt)至rdd1，用filter將第一行（第一欄內容不為數字）排除
+    val rdd1 = sc.textFile("data/day.csv").map(x => x.split(",")).filter(x => Try(x(0).toInt).isSuccess).map(x => (x(1), x(15).toInt))
+
+    //hour.csv的(dteday,(hr,cnt))至rdd2:
+    val rdd2 = sc.textFile("data/hour.csv").map(x => x.split(",")).filter(x => Try(x(0).toInt).isSuccess).map(x => (x(1), (x(5), x(16).toInt)))
+
+    val rdd3 = rdd1.join(rdd2.groupByKey)    //合併rdd1及rdd2至rdd3(資料格式：(dteday,cnt,Seq((hr,cnt)))):
+
+    //由rdd3取出hour的cnt大於day的cnt/24的(dteday,cnt/24,Seq(hr,cnt))存入rdd4:
+    val rdd4 = rdd3.map(x => (x._1, x._2._1 / 24, x._2._2.filter(y => y._2 > x._2._1 / 24)))
+
+    rdd4.sortBy(x => x._2.toInt, false).take(10).foreach(println)  //rdd4以cnt/24由大到小排序，列印前十筆
+    rdd4.sortBy(x => x._2.toInt, false).saveAsTextFile("data/output") //輸出RDD結果到output目錄
+  }
+}
