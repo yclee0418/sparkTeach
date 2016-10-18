@@ -8,7 +8,7 @@
       <li>Spark 2.0.1 本機版: <a href="https://goo.gl/LdlGm8" target="_blank">下載</a></li>
       <li>Scala IDE: <a href="http://scala-ide.org/download/sdk.html" target="_blank">下載</a></li>
       <li>winutils.exe(For windows平台安裝 Only): <a href="https://github.com/yclee0418/sparkTeach/blob/master/installation/winutils.exe" target="_blank">下載</a></li>
-      <li>電腦記憶體建議4GB以上，8GB以上者尤佳；並建議使用64位元OS</li>
+      <li>電腦記憶體建議4GB以上，8GB以上者尤佳；並建議使用64位元作業系統</li>
       <li>請依安裝說明執行安裝步驟，確定spark-shell可開啟、可執行測試指令</li>
     </ul>
   </li>
