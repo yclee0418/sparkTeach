@@ -1,0 +1,16 @@
+package wordCount
+
+
+    
+//讀取gettysburg.txt，以空白分開
+val rawRdd = sc.textFile("file:///Users/yungchuanlee/Downloads/gettysburg.txt").flatMap { x=>x.split(" ") }
+//不分大小寫(toLowerCase轉成全小寫)，不含空白(用filter篩選)
+val txtRdd = rawRdd.map{x=>x.toLowerCase.trim}.filter { x=> !x.equals("") }
+//map    
+val countRdd = txtRdd.map { x => (x, 1) }
+//reduce
+val resultRdd = countRdd.reduceByKey{case(a,b) => a+b}
+//排序
+val sortResRdd = resultRdd.sortBy((x=> x._2), false)
+//印出前五個
+sortResRdd.take(5).foreach { println }
