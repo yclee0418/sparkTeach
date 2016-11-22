@@ -1,6 +1,6 @@
 
 <ul>
-    <li>Bike-share-rdd.txt: RDD實戰演練的解答</li>
+    <li>WordCount_Rdd.txt: RDD實戰演練(Word Count解答)</li>
     <li>BikeCountSort.txt: Scala IDE開發演練的解答(1)</li>
     <li>WordCount1.txt: 蓋茲堡宣言字數統計</li>
     <li>WordCount2.txt: 蓋茲堡宣言尋找每個字最後出現的位置</li>
