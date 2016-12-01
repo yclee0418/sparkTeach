@@ -15,9 +15,10 @@ import org.apache.log4j._
 import org.apache.spark.mllib.evaluation._
 import org.apache.spark.mllib.linalg.Vectors
 //linear regression
-import org.apache.spark.mllib.regression.LabeledPoint
-import org.apache.spark.mllib.feature.StandardScaler
-import org.apache.spark.mllib.regression.{LinearRegressionWithSGD, LinearRegressionModel}
+//TODO: import LinearRegression所需之Library
+import org.apache.spark.mllib.regression.
+import org.apache.spark.mllib.feature.
+import org.apache.spark.mllib.regression.{}
 
 
 object BikeShareRegressionLR {
@@ -69,18 +70,16 @@ object BikeShareRegressionLR {
     val featureRddWithMap = bikeData.map { x =>
       Vectors.dense(getFeatures(x, yrMap, seasonMap, mnthMap, hrMap, holidayMap, weekdayMap, workdayMap, weatherMap))
     }
+    //TODO：實作Standardize featureRddWithMap邏輯
     val stdScalerWithMap = new StandardScaler(withMean = true, withStd = true).fit(featureRddWithMap)
     //處理Category feature
     val lpData = bikeData.map { x =>
       {
-        val label = x.cnt
-        val features =
-          stdScalerWithMap.transform(Vectors.dense(getFeatures(x, yrMap, seasonMap, mnthMap, hrMap, holidayMap, weekdayMap, workdayMap, weatherMap)))
-        new LabeledPoint(label, features)
+        //TODO：完成產生LabeledPoint的邏輯
       }
     }
     //以6:4的比例隨機分割，將資料切分為訓練及驗證用資料
-    val Array(trainData, validateData) = lpData.randomSplit(Array(0.6, 0.4))
+    //TODO: 實作6:4的比例隨機分割，產生trainData及 validateData
     (trainData, validateData)
   }
   
@@ -88,34 +87,21 @@ object BikeShareRegressionLR {
    * 將Category的Feature("yr","season","mnth","holiday","weekday","workingday","weathersit")轉成1-of-k encode的編碼Array
    */
   def getCategoryFeature(fieldVal: Double, categoryMap: Map[Double, Int]): Array[Double] = {
-    var featureArray = Array.ofDim[Double](categoryMap.size)
-    val index = categoryMap(fieldVal)
-    featureArray(index) = 1
-    featureArray
+    //TODO: 實作將傳入的fieldVal及CategoryMap進行1-of-k encode邏輯
   }
 
   def getFeatures(bikeData: BikeShareEntity, yrMap: Map[Double, Int], seasonMap: Map[Double, Int], mnthMap: Map[Double, Int],
                   hrMap: Map[Double, Int], holidayMap: Map[Double, Int], weekdayMap: Map[Double, Int], workdayMap: Map[Double, Int],
                   weatherMap: Map[Double, Int]): Array[Double] = {
-    var featureArr: Array[Double] = Array()
-    featureArr ++= getCategoryFeature(bikeData.yr, yrMap)
-    featureArr ++= getCategoryFeature(bikeData.season, seasonMap)
-    featureArr ++= getCategoryFeature(bikeData.mnth, mnthMap)
-    featureArr ++= getCategoryFeature(bikeData.holiday, holidayMap)
-    featureArr ++= getCategoryFeature(bikeData.weekday, weekdayMap)
-    featureArr ++= getCategoryFeature(bikeData.workingday, workdayMap)
-    featureArr ++= getCategoryFeature(bikeData.weathersit, weatherMap)
-    featureArr ++= getCategoryFeature(bikeData.hr, hrMap)
-    featureArr ++= Array(bikeData.temp, bikeData.atemp, bikeData.hum, bikeData.windspeed)
-    featureArr
+    //TODO: 完成getFeatures方法實作(提醒：類別型變數欄位要傳入getCategoryFeature進行1-of-k encode)
   }
 
   def trainModel(trainData: RDD[LabeledPoint],
                  numIterations: Int, stepSize: Double, miniBatchFraction: Double): 
                  (LinearRegressionModel, Double) = {
     val startTime = new DateTime()
+    //TODO: 實作訓練LinearRegressionModel邏輯
     
-    val model = LinearRegressionWithSGD.train(trainData, numIterations, stepSize, miniBatchFraction) 
     val endTime = new DateTime()
     val duration = new Duration(startTime, endTime)
     //MyLogger.debug(model.toPMML())
@@ -123,13 +109,7 @@ object BikeShareRegressionLR {
   }
 
   def evaluateModel(validateData: RDD[LabeledPoint], model: LinearRegressionModel): Double = {
-    val scoreAndLabels = validateData.map { data =>
-      var predict = model.predict(data.features)
-      (predict, data.label)
-    }
-    val metrics = new RegressionMetrics(scoreAndLabels)
-    val rmse = metrics.rootMeanSquaredError
-    rmse
+    //TODO： 實作評估model邏輯
   }
 
   def tuneParameter(trainData: RDD[LabeledPoint], validateData: RDD[LabeledPoint]) = {
@@ -137,13 +117,7 @@ object BikeShareRegressionLR {
     val stepSizeArr: Array[Double] = Array(0.01, 0.025, 0.05, 0.1,1.0)
     val miniBatchFractionArr: Array[Double] = Array(0.5,0.8, 1)
     val evalArr =
-      for (iteration <- iterationArr; stepSize <- stepSizeArr;miniBatchFraction <- miniBatchFractionArr) yield {
-        val (model, duration) = trainModel(trainData, iteration, stepSize,miniBatchFraction)
-        val rmse = evaluateModel(validateData, model)
-        println("parameter: iteraion=%d, stepSize=%f, miniBatchFraction=%f, rmse=%f"
-          .format(iteration, stepSize,miniBatchFraction, rmse))
-        (iteration, stepSize,miniBatchFraction, rmse)
-      }
+      //TODO: 實作評估不同參數組合，並選出最佳參數組合邏輯
     val bestEvalAsc = (evalArr.sortBy(_._4))
     val bestEval = bestEvalAsc(0)
     println("best parameter: iteraion=%d, stepSize=%f,miniBatchFraction=%f, rmse=%f"
