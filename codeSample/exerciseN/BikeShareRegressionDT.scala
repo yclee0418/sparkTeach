@@ -15,9 +15,10 @@ import org.apache.log4j._
 import org.apache.spark.mllib.evaluation._
 import org.apache.spark.mllib.linalg.Vectors
 //decision tree
-import org.apache.spark.mllib.regression.LabeledPoint
-import org.apache.spark.mllib.tree.DecisionTree
-import org.apache.spark.mllib.tree.model.DecisionTreeModel
+//TODO: import Decision Tree所需之Library
+import org.apache.spark.mllib.regression.
+import org.apache.spark.mllib.tree.
+import org.apache.spark.mllib.tree.model.
 
 object BikeShareRegressionDT {
   case class BikeShareEntity(instant: String, dteday: String, season: Double, yr: Double, mnth: Double,
@@ -60,37 +61,30 @@ object BikeShareRegressionDT {
     
     val lpData = bikeData.map { x =>
       {
-        val label = x.cnt
-        val features = Vectors.dense(getFeatures(x))
-        new LabeledPoint(label, features) //LabeledPoint由label及Vector組成
+        //TODO：完成產生LabeledPoint的邏輯
       }
     }
     //以6:4的比例隨機分割，將資料切分為訓練及驗證用資料
-    val Array(trainData, validateData) = lpData.randomSplit(Array(0.6, 0.4))
+    //TODO: 實作6:4的比例隨機分割，產生trainData及 validateData
     (trainData, validateData)
   }
   
   def getFeatures(bikeData: BikeShareEntity): Array[Double] = {
-    val featureArr = Array(bikeData.yr, bikeData.season - 1, bikeData.mnth - 1, bikeData.hr,
-      bikeData.holiday, bikeData.weekday, bikeData.workingday, bikeData.weathersit - 1, bikeData.temp, bikeData.atemp,
-      bikeData.hum, bikeData.windspeed)
-    featureArr
+    //TODO: 完成getFeatures方法實作(提醒：部份類別型變數欄位值要－1)
   }
   
   def getCategoryInfo(): Map[Int, Int] = {
     //("yr", 2), ("season", 4), ("mnth", 12), ("hr", 24),
     //("holiday", 2), ("weekday", 7), ("workingday", 2), ("weathersit", 4)
-    val categoryInfoMap = Map[Int, Int](( /*"yr"*/ 0, 2), ( /*season*/ 1, 4), ( /*"mnth"*/ 2, 12), ( /*"hr"*/ 3, 24),
-      ( /*"holiday"*/ 4, 2), ( /*"weekday"*/ 5, 7), ( /*"workingday"*/ 6, 2), ( /*"weathersit"*/ 7, 4))
-    //val categoryInfoMap = Map[Int, Int]()
-    categoryInfoMap
+    //TODO： 建立categroyInfoMap，存入類別變數資訊並回傳
+    
   }
 
   def trainModel(trainData: RDD[LabeledPoint],
                  impurity: String, maxDepth: Int, maxBins: Int, catInfo: Map[Int, Int]): (DecisionTreeModel, Double) = {
     val startTime = new DateTime()
+    //TODO: 實作訓練DecisionTreeModel邏輯
     
-    val model = DecisionTree.trainRegressor(trainData, catInfo, impurity, maxDepth, maxBins)
     val endTime = new DateTime()
     val duration = new Duration(startTime, endTime)
     //MyLogger.debug(model.toDebugString)
@@ -98,13 +92,7 @@ object BikeShareRegressionDT {
   }
 
   def evaluateModel(validateData: RDD[LabeledPoint], model: DecisionTreeModel): Double = {
-    val scoreAndLabels = validateData.map { data =>
-      var predict = model.predict(data.features)
-      (predict, data.label)
-    }
-    val metrics = new RegressionMetrics(scoreAndLabels)
-    val rmse = metrics.rootMeanSquaredError
-    rmse
+    //TODO： 實作評估model邏輯
   }
 
   def tuneParameter(trainData: RDD[LabeledPoint], validateData: RDD[LabeledPoint], cateInfo:Map[Int,Int]) = {
@@ -112,13 +100,7 @@ object BikeShareRegressionDT {
     val depthArr = Array(3, 5, 10, 15, 20, 25)
     val binsArr = Array(/*3, 5, 10,*/ 50, 100, 200)
     val evalArr =
-      for (impurity <- impurityArr; maxDepth <- depthArr; maxBins <- binsArr) yield {
-        val (model, duration) = trainModel(trainData, impurity, maxDepth, maxBins, cateInfo)
-        val rmse = evaluateModel(validateData, model)
-        println("parameter: impurity=%s, maxDepth=%d, maxBins=%d, rmse=%f"
-          .format(impurity, maxDepth, maxBins, rmse))
-        (impurity, maxDepth, maxBins, rmse)
-      }
+      //TODO: 實作評估不同參數組合，並選出最佳參數組合邏輯
     val bestEvalAsc = (evalArr.sortBy(_._4))
     val bestEval = bestEvalAsc(0)
     println("best parameter: impurity=%s, maxDepth=%d, maxBins=%d, rmse=%f"
