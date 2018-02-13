@@ -8,8 +8,10 @@
 #### How install and config
 * sbt installation on ubuntu: https://www.scala-sbt.org/1.0/docs/zh-cn/Installing-sbt-on-Linux.html
 * use `sbt about` or `sbt version` command to check version of sbt
+* create scala project folder (like sparkCassandra2) and create [build.sbt](https://github.com/yclee0418/sparkTeach/blob/master/sbt/build.sbt) 
 * download Scala-IDE: http://scala-ide.org/
 * config sbteclipse: https://github.com/sbt/sbteclipse
+* run `sbt eclipse` within scala project folder
   * if sbt version is not 0.13, sbt will not load plugins from ~/.sbt/0.13/plugins/plugins.sbt, and `sbt eclipse` will cause error:
     <pre><code>
     [error] Not a valid command: eclipse (similar: client, help, alias)
@@ -22,5 +24,5 @@
   * so we need to create plugins.sbt into project folder within scala project folder by following command:
     <pre><code> echo 'addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.2.4")' > project/plugins.sbt
            (if project folder not exist, create it first)</code></pre>
-  * then use `sbt` command to enter sbt environment, and use `eclipse` command to create eclipse project 
+  * then use `sbt` command to enter sbt environment, and use `eclipse` command in sbt env to create eclipse project
  
